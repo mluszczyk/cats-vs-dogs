@@ -95,36 +95,30 @@ def get_convnet_model(input_shape):
 
     model.add(BatchNormalization(input_shape=input_shape))
 
-    nb_filters = 32
+    nb_filters = 16
     nb_pool = 2
     nb_conv = 3
 
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.2))
 
     model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
 
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
 
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
 
     model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
 
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Flatten())
     model.add(Dense(256))
@@ -133,9 +127,9 @@ def get_convnet_model(input_shape):
     model.add(Dense(1, init='zero', activation='sigmoid'))
 
     from keras.optimizers import SGD
-    sgd = SGD(lr=1)
+    sgd = SGD()
 
-    model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
     return model
 
@@ -146,7 +140,7 @@ def interactive_train_convnet(model, d):
 
     print("train convnet")
     print(len(train_data_X), train_data_y[0], train_data_y[-1])
-    model.fit(train_data_X, train_data_y, nb_epoch=60)
+    model.fit(train_data_X, train_data_y, nb_epoch=20)
 
 
     # In[ ]:
