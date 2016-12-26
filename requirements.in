@@ -1,0 +1,8 @@
+ipython
+keras
+numpy
+pillow
+pip-tools
+sklearn
+tensorflow
+tensorflow-gpu

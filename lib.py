@@ -108,6 +108,14 @@ def get_convnet_model(input_shape):
 
     # model.add(Dropout(0.5))
 
+    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    print(model.output_shape)
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    print(model.output_shape)
+
+    # model.add(Dropout(0.5))
+
     print(model.output_shape, 'pre-subsample')
     model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
     print(model.output_shape, 'post-subsample')
@@ -123,20 +131,23 @@ def get_convnet_model(input_shape):
     print(model.output_shape)
 
 
-    model.add(AveragePooling2D(pool_size=(8, 8)))
+    model.add(AveragePooling2D(pool_size=(4, 4)))
+    print(model.output_shape)
 
     # model.add(Dropout(0.5))
 
     model.add(Flatten())
-    model.add(Dense(1, init='zero', activation='sigmoid'))
+    model.add(Activation('softmax'))
+    print(model.output_shape)
 
-    from keras.optimizers import SGD
-    sgd = SGD()
-
-    model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     return model
 
+
+def binary_to_one_hot(binary):
+    t = binary.reshape(-1, 1)
+    return numpy.concatenate((1 - t, t), axis=1)
 
 
 def interactive_train_convnet(model, d):
@@ -144,7 +155,7 @@ def interactive_train_convnet(model, d):
 
     print("train convnet")
     print(len(train_data_X), train_data_y[0], train_data_y[-1])
-    model.fit(train_data_X, train_data_y, nb_epoch=20)
+    model.fit(train_data_X, binary_to_one_hot(train_data_y), nb_epoch=20)
 
 
     # In[ ]:
