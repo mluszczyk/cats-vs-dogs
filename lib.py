@@ -17,7 +17,7 @@ from keras.preprocessing.image import list_pictures, load_img, img_to_array
 import os
 import random
 from keras.models import Sequential
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Convolution2D, MaxPooling2D, AveragePooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.layers import Reshape, BatchNormalization
 
@@ -94,36 +94,40 @@ def get_convnet_model(input_shape):
     model = Sequential()
 
     model.add(BatchNormalization(input_shape=input_shape))
+    print(model.output_shape)
 
-    nb_filters = 16
-    nb_pool = 2
     nb_conv = 3
 
     # model.add(Dropout(0.2))
 
-    model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same'))
+    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    print(model.output_shape)
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    print(model.output_shape)
 
     # model.add(Dropout(0.5))
 
-    model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    print(model.output_shape, 'pre-subsample')
+    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    print(model.output_shape, 'post-subsample')
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    print(model.output_shape)
 
     # model.add(Dropout(0.5))
 
-
-    model.add(Convolution2D(nb_filters, nb_conv, nb_conv, border_mode='same'))
+    model.add(Convolution2D(2, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    print(model.output_shape)
+
+
+    model.add(AveragePooling2D(pool_size=(8, 8)))
 
     # model.add(Dropout(0.5))
 
     model.add(Flatten())
-    model.add(Dense(256))
-    model.add(Activation('relu'))
-    model.add(BatchNormalization())
     model.add(Dense(1, init='zero', activation='sigmoid'))
 
     from keras.optimizers import SGD
