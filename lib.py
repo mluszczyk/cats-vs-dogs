@@ -1,17 +1,8 @@
-
-# coding: utf-8
-
-# In[35]:
-
-import keras
 import numpy
 import pickle
 
 
-
 from keras.preprocessing.image import list_pictures, load_img, img_to_array
-
-
 
 
 import os
@@ -20,8 +11,6 @@ from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D, AveragePooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.layers import Reshape, BatchNormalization
-
-
 
 
 def load_and_resize_img(k):
@@ -44,9 +33,7 @@ def prepare_train_test():
     cats, dogs = [p for p in pictures if p.startswith('cat')], [p for p in pictures if p.startswith('dog')]
     num = 4000
     random.shuffle(cats)
-    cats_t_paths = cats[:num]
     random.shuffle(dogs)
-    dogs_t_paths = dogs[:num]
 
 
     print("Prepare train")
@@ -66,22 +53,24 @@ def prepare_for_logreg(dataset):
     return array
 
 
-def train_logreg():
-    # In[ ]:
+def train_logreg(d):
     print("Train logreg")
+    train_data_X, train_data_y = d
     from sklearn.linear_model import LogisticRegression
     logreg_m = LogisticRegression()
-    logreg_m.fit(prepare_for_logreg(train_data_X), train_data_y,
-         validation_data=(test_data_X, test_data_y))
+    logreg_m.fit(prepare_for_logreg(train_data_X), train_data_y)
+    return logreg_m
 
 
 
 from sklearn.metrics import accuracy_score
 
+
 def score(model, X, expected_y, process_predicted=lambda x: x):
     predicted = model.predict(X)
     return accuracy_score(expected_y, process_predicted(predicted))
-    
+
+
 def score_both(model, training_X, training_y, test_X, test_y, process_predicted=lambda x: x):
     print("Train accuracy", score(model, training_X, training_y, process_predicted))
     print("Test accuracy", score(model, test_X, test_y, process_predicted))
@@ -100,7 +89,7 @@ def get_convnet_model(input_shape):
 
     # model.add(Dropout(0.2))
 
-    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    model.add(Convolution2D(8, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
     print(model.output_shape)
     model.add(BatchNormalization())
     model.add(Activation('relu'))
@@ -108,7 +97,7 @@ def get_convnet_model(input_shape):
 
     # model.add(Dropout(0.5))
 
-    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    model.add(Convolution2D(8, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
     print(model.output_shape)
     model.add(BatchNormalization())
     model.add(Activation('relu'))
@@ -160,7 +149,7 @@ def interactive_train_convnet(model, d):
 
     # In[ ]:
     print("predict from convnet")
-    post_predict = lambda x: numpy.round(x.reshape(-1)).astype(int)
+    post_predict = lambda x: numpy.round(x[:, 1].reshape(-1)).astype(int)
     print(post_predict(model.predict(train_data_X)))
     print(train_data_y)
 
