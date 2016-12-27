@@ -31,18 +31,19 @@ def prepare_dataset(img_names):
 def prepare_train_test():
     pictures = os.listdir(os.path.join(os.pardir, "train"))
     cats, dogs = [p for p in pictures if p.startswith('cat')], [p for p in pictures if p.startswith('dog')]
-    num = 4000
+    num_train = 10000
+    num_test = 1000
     random.shuffle(cats)
     random.shuffle(dogs)
 
 
     print("Prepare train")
-    train_data_X = numpy.concatenate([prepare_dataset(cats[0:num]), prepare_dataset(dogs[0:num])])
-    train_data_y = numpy.array([0] * num + [1] * num)
+    train_data_X = numpy.concatenate([prepare_dataset(cats[0:num_train]), prepare_dataset(dogs[0:num_train])])
+    train_data_y = numpy.array([0] * num_train + [1] * num_train)
 
     print("Prepare test")
-    test_data_X = numpy.concatenate([prepare_dataset(cats[num:2 * num]), prepare_dataset(dogs[num:2 * num])])
-    test_data_y = numpy.array([0] * num + [1] * num)
+    test_data_X = numpy.concatenate([prepare_dataset(cats[num_train:num_train + num_test]), prepare_dataset(dogs[num_train:num_train + num_test])])
+    test_data_y = numpy.array([0] * num_test + [1] * num_test)
 
     return train_data_X, train_data_y, test_data_X, test_data_y
 
@@ -89,25 +90,16 @@ def get_convnet_model(input_shape):
 
     # model.add(Dropout(0.2))
 
-    model.add(Convolution2D(8, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
-    print(model.output_shape)
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    print(model.output_shape)
-
-    # model.add(Dropout(0.5))
-
-    model.add(Convolution2D(8, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
-    print(model.output_shape)
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    print(model.output_shape)
-
-    # model.add(Dropout(0.5))
-
-    print(model.output_shape, 'pre-subsample')
     model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
-    print(model.output_shape, 'post-subsample')
+    print(model.output_shape)
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    print(model.output_shape)
+
+    # model.add(Dropout(0.5))
+
+    model.add(Convolution2D(16, nb_conv, nb_conv, border_mode='same', subsample=(2, 2)))
+    print(model.output_shape)
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     print(model.output_shape)
@@ -119,8 +111,7 @@ def get_convnet_model(input_shape):
     model.add(Activation('relu'))
     print(model.output_shape)
 
-
-    model.add(AveragePooling2D(pool_size=(4, 4)))
+    model.add(AveragePooling2D(pool_size=(8, 8)))
     print(model.output_shape)
 
     # model.add(Dropout(0.5))
@@ -144,7 +135,7 @@ def interactive_train_convnet(model, d):
 
     print("train convnet")
     print(len(train_data_X), train_data_y[0], train_data_y[-1])
-    model.fit(train_data_X, binary_to_one_hot(train_data_y), nb_epoch=20)
+    model.fit(train_data_X, binary_to_one_hot(train_data_y), nb_epoch=60)
 
 
     # In[ ]:
